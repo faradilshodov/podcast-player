@@ -1,0 +1,25 @@
+{
+  "name": "podcast-player",
+  "version": "1.0.0",
+  "description": "Podcast player to listen to podcasts",
+  "main": "script.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faradilshodov/podcast-player.git"
+  },
+  "author": "Fara",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faradilshodov/podcast-player/issues"
+  },
+  "homepage": "https://github.com/faradilshodov/podcast-player#readme",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "node-fetch": "^2.7.0"
+  }
+}
