@@ -41,6 +41,10 @@ body {
     left: 10px;
 }
 
+.nav-list {
+	display: none;
+}
+
 /* Search Container ----------------------------------- */
 .search-container {
     position: absolute;
@@ -336,30 +340,6 @@ button:hover {
     left: 3px;
 }
 
-/* Media Query: iPhone (Vertical) */
-@media screen and (max-width: 376px) {
-    .player-container {
-        width: 95vw;
-    }
-
-    .img-container {
-        left: 29px;
-    }
-
-    h2 {
-        font-size: 20px;
-    }
-
-    h3 {
-        font-size: 15px;
-    }
-
-    .player-controls {
-        top: -10px;
-        left: 100px;
-    }
-}
-
 /* Queue */
 .queue {
     background: #e7e7e7;
@@ -422,4 +402,44 @@ button:hover {
 
 .icon-container i:hover {
 	filter: brightness(60%);
+}
+
+/* Smartphone / Tablet Media Queries */
+@media (max-width: 1025px) {
+	/* Navigation */
+	.nav-wrapper {
+		position: fixed;
+		z-index: 10;
+	}
+
+	.nav {
+		top: 14px;
+	}
+
+	.nav-title {
+		font-size: 20px;
+	}
+
+	.nav-list {
+		position: relative;
+		display: flex;
+		top: 3px;
+		left: -4px;
+	}
+
+	.nav-list span {
+		font-size: 19px;
+		color: white;
+		position: relative;
+		left: 25px;
+		padding-bottom: 3px;
+	}
+
+	.nav-list span:first-child {
+		margin-right: 10px;
+	}
+
+	.nav-list .selected {
+		border-bottom: 2px solid #1DB954;
+	}
 }
