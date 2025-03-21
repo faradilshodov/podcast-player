@@ -452,6 +452,48 @@ button:hover {
 	.page-wrapper {
 		flex-direction: column;
 	}
+
+	.search-container {
+		position: relative;
+		flex-direction: column;
+		left: 5px;
+	}
+
+	.custom-select {
+		width: calc(100% - 20px);
+		margin-right: unset;
+		margin-bottom: 10px;
+	}
+
+	input {
+		width: calc(100% - 40px);
+	}
+
+	.search-buttons {
+		width: calc(100% - 10px);
+	}
+
+	button {
+		width: 50%;
+	}
+
+	.main-container {
+		width: calc(100% - 20px);
+		height: calc(100% - 180px);
+		margin-top: 65px;
+		padding:5px 10px;
+	}
+
+	/* Cards container */
+	.cards-container {
+		gap: 10px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.card {
+		width: 100%;
+	}
 	
 	/* Player */
 	.player-container {
@@ -479,5 +521,25 @@ button:hover {
 		top: 80px;
 		width: calc(100% - 20px);
 		height: calc(100% - 480px);
+	}
+}
+
+/* Smartphone Vertical: Media Queries */
+@media (max-width: 500px) {
+	.card {
+		height: auto;
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.card img {
+		width: 100%;
+	}
+
+	.card-content {
+		width: auto;
+		padding: 10px;
+		font-size: 80%;
+		overflow-y: unset;
 	}
 }
