@@ -4,6 +4,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchButton = document.getElementById('searchButton');
     const resetButton = document.getElementById('resetButton');
 
+    // Reset search history
+    function resetHistory() {
+        searchHistory.innerText = '';
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Select a Previous Search';
+        searchHistory.appendChild(option);
+    }
+
+    // Load search history from local storage
+    function loadSearchHistory() {
+        const savedSearches = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        resetHistory();
+        savedSearches.forEach(searchTerm => {
+            const option = document.createElement('option');
+            option.value = searchTerm;
+            option.textContent = searchTerm;
+            searchHistory.appendChild(option);
+        });
+    }
+
+    // Save the search history to local storage
+    function saveSearchHistory(searchTerm) {
+        let savedSearches = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        if (!savedSearches.includes(searchTerm)) {
+            savedSearches.push(searchTerm);
+            localStorage.setItem('searchHistory', JSON.stringify(savedSearches));
+        }
+    }
+
+    // Event listener for dropdown change
+    searchHistory.addEventListener('change', () => {
+        const selectedSearch = searchHistory.value;
+        if (selectedSearch) {
+            searchInput.value = selectedSearch;
+            searchPodcast();
+        }
+    });
 
     // Event listener for search button, input
     searchButton.addEventListener('click', searchPodcast);
@@ -18,11 +56,23 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.value = '';
     });
 
+    // Event listener for reset button
+    resetButton.addEventListener('click', () => {
+        localStorage.removeItem('searchHistory');
+        resetHistory();
+        searchInput.value = '';
+    })
+
+    // Load search history when page loads
+    loadSearchHistory();
+
     // Search Podcasts
     function searchPodcast() {
         const searchTerm = searchInput.value.trim();
         if (searchTerm) {
             console.log('Searched: ', searchTerm);
+            saveSearchHistory(searchTerm);
+            loadSearchHistory();
         }
     }
 
