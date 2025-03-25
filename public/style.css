@@ -200,6 +200,10 @@ button:hover {
     display: flex;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .card img {
     width: 250px;
     height: auto;
