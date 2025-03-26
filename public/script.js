@@ -171,13 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             responseContainer.textContent = '';
 
-            if (data.items && data.items.length > 0) {
-                console.log("Episodes: ", data.items);
-                
-                // data.feeds.forEach((podcast) => {
-                //     const card = createCard(podcast);
-                //     responseContainer.appendChild(card);
-                // });
+            if (data.items && data.items.length > 0) {                
+                data.items.forEach((episode) => {
+                    const card = createEpisodeCard(episode);
+                    responseContainer.appendChild(card);
+                });
             } else {
                 responseContainer.innerText = 'No Results Found';
             }
@@ -186,6 +184,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         hideLoader();
+    }
+
+    // Create Episode Card
+    function createEpisodeCard(episode) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = episode.image || episode.feedImage || './default-podcast.png';
+        img.alt = episode.title;
+
+        const content = document.createElement('div');
+        content.className = 'card-content';
+
+        const title = document.createElement('h3');
+        title.innerText = episode.title;
+
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'icon-container';
+
+        const playBtnIcon = document.createElement('i');
+        playBtnIcon.className = 'fas fa-play-circle mr-10';
+        playBtnIcon.title = 'Play Podcast';
+        playBtnIcon.addEventListener('click', () => {
+            console.log('Episode played: ', episode);
+            
+        });
+
+        const queueBtnIcon = document.createElement('i');
+        queueBtnIcon.className = 'fas fa-list';
+        queueBtnIcon.title = 'Add to Queue';
+        queueBtnIcon.addEventListener('click', () => {
+            console.log('Episode queued: ', episode);
+            
+        });
+
+        const description = document.createElement('p');
+        description.innerHTML = episode.description;
+
+        const pubDate = document.createElement('p');
+        pubDate.className = 'pub-date-alt';
+        pubDate.innerText = `Published: ${episode.datePublished ? formatDate(episode.datePublished) : 'Not Available'}`;
+
+        iconContainer.appendChild(playBtnIcon);
+        iconContainer.appendChild(queueBtnIcon);
+        iconContainer.appendChild(pubDate);
+
+        content.appendChild(title);
+        content.appendChild(iconContainer);
+        content.appendChild(description);
+
+        card.appendChild(img);
+        card.appendChild(content);
+
+        return card;
     }
 
 
