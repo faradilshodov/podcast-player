@@ -86,6 +86,32 @@ document.addEventListener('DOMContentLoaded', () => {
         responseContainer.style.display = 'flex';
     }
 
+    // Set up to load podcast / episode images
+    function handleImageLoad(limit) {
+        const images = responseContainer.getElementsByTagName('img');
+        let imagesToLoad = Math.min(images.length, limit);
+        const fallbackImage = '.default-podcast.png';
+
+        if (imagesToLoad === 0) {
+            hideLoader();
+            return;
+        }
+
+        Array.from(images).slice(0, limit).forEach(img => {
+            img.onload = img.onerror = () => {
+                imagesToLoad--;
+                
+                if (img.complete && !img.naturalWidth) {
+                    img.src = fallbackImage;
+                }
+
+                if (imagesToLoad === 0) {
+                    hideLoader();
+                }
+            }
+        });
+    }
+
     // Search Podcasts
     async function searchPodcast() {
         const searchTerm = searchInput.value.trim();
@@ -106,10 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             responseContainer.textContent = '';
 
+            const titles = new Set();
+
             if (data.feeds && data.feeds.length > 0) {
-                data.feeds.forEach((podcast) => {
-                    const card = createCard(podcast);
-                    responseContainer.appendChild(card);
+                data.feeds.forEach((podcast, index) => {
+                    if (podcast.episodeCount > 0 && !titles.has(podcast.title)) {
+                        titles.add(podcast.title);
+                        const card = createCard(podcast);
+                        responseContainer.appendChild(card);
+
+                        if (index >= 25) {
+                            card.querySelector('img').dataset.src = card.querySelector('img').src;
+                            card.querySelector('img').src = '';
+                        }
+                    }
+
+                    handleImageLoad(25);
                 });
             } else {
                 responseContainer.innerText = 'No Results Found';
@@ -117,8 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             responseContainer.innerText = `Error: ${error.message}`;
         }
-
-        hideLoader();
     }
 
     // Create Podcast Card
@@ -172,18 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
             responseContainer.textContent = '';
 
             if (data.items && data.items.length > 0) {                
-                data.items.forEach((episode) => {
+                data.items.forEach((episode, index) => {
                     const card = createEpisodeCard(episode);
                     responseContainer.appendChild(card);
+
+                    if (index >= 25) {
+                        card.querySelector('img').dataset.src = card.querySelector('img').src;
+                        card.querySelector('img').src = '';
+                    }
                 });
             } else {
                 responseContainer.innerText = 'No Results Found';
             }
+
+            handleImageLoad(25);
         } catch (error) {
             responseContainer.innerText = `Error: ${error.message}`;
         }
-
-        hideLoader();
     }
 
     // Create Episode Card
