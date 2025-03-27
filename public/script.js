@@ -84,13 +84,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideLoader() {
         loader.style.display = 'none';
         responseContainer.style.display = 'flex';
+        responseContainer.scrollTo({
+            top: 0
+        });
+    }
+
+    // Handle fallback image
+    function handleFallbackImage(img) {
+        const fallbackImage = './default-podcast.png';
+        img.src = fallbackImage;
+        return img;
     }
 
     // Set up to load podcast / episode images
     function handleImageLoad(limit) {
         const images = responseContainer.getElementsByTagName('img');
         let imagesToLoad = Math.min(images.length, limit);
-        const fallbackImage = '.default-podcast.png';
 
         if (imagesToLoad === 0) {
             hideLoader();
@@ -102,13 +111,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagesToLoad--;
                 
                 if (img.complete && !img.naturalWidth) {
-                    img.src = fallbackImage;
+                    img = handleFallbackImage(img);
                 }
 
                 if (imagesToLoad === 0) {
                     hideLoader();
+                    lazyLoadRemainingImages(limit);
                 }
             }
+        });
+    }
+
+    // Lazy load images after initial load
+    function lazyLoadRemainingImages(start) {
+        const remainingImages = Array.from(responseContainer.getElementsByTagName('img')).slice(start);
+
+        const lazyLoadObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    let img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.onload = img.onerror = () => {
+                            if (img.complete && !img.naturalWidth) {
+                                img = handleFallbackImage(img);
+                            }
+                            lazyLoadObserver.unobserve(img);
+                        }
+                    } else {
+                        img = handleFallbackImage(img);
+                        lazyLoadObserver.unobserve(img);
+                    }
+                }
+            });
+        });
+
+        remainingImages.forEach(img => {
+            lazyLoadObserver.observe(img);
         });
     }
 
