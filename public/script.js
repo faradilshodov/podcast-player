@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update Podcast container
     function loadPodcast(episode) {
-        title.textContent = episode.displayName;
+        title.textContent = episode.title;
         datePublished.textContent = `${
             episode.datePublished
                 ? formatDate(episode.datePublished)
@@ -427,37 +427,50 @@ document.addEventListener("DOMContentLoaded", () => {
         player.src = episode.enclosureUrl;
         image.src = episode.image || episode.feedImage || "./default-podcast.png";
 
-        player.addEventListener('loadmetadata', () => {
+        player.addEventListener("loadedmetadata", () => {
             const duration = player.duration;
+            formatTime(duration, durationEl);
             playPodcast();
         });
     }
 
+    // Format Time
+    function formatTime(time, elName) {
+        // Calculate hours, mins, secs
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        let seconds = Math.floor(time % 60);
+
+        // Format Seconds
+        if (seconds < 10) seconds = `0${seconds}`;
+
+        // Format Minutes
+        const formattedMinutes =
+            hours > 0 && minutes < 10 ? `0${minutes}` : minutes;
+
+        // Display time in hours:minutes:seconds or minutes:seconds
+        if (time) {
+            elName.textContent =
+                hours > 0
+                    ? `${hours}:${formattedMinutes}:${seconds}`
+                    : `${minutes}:${seconds}`;
+        }
+    }
+
+    // Skip forward or backward 15 secs
+    function skipTime(amount) {
+        player.currentTime = Math.max(0, Math.min(player.duration, player.currentTime + amount));
+    }
+
     // Update Progress Bar & Time
     function updateProgressBar(e) {
-        if (isPlaying) {
             const { duration, currentTime } = e.srcElement;
             // Update progress bar width
             const progressPercent = (currentTime / duration) * 100;
             progress.style.width = `${progressPercent}%`;
-            // Calculate display for duration
-            const durationMinutes = Math.floor(duration / 60);
-            let durationSeconds = Math.floor(duration % 60);
-            if (durationSeconds < 10) {
-                durationSeconds = `0${durationSeconds}`;
-            }
-            // Delay switching duration Element to avoid NaN
-            if (durationSeconds) {
-                durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
-            }
-            // Calculate display for currentTime
-            const currentMinutes = Math.floor(currentTime / 60);
-            let currentSeconds = Math.floor(currentTime % 60);
-            if (currentSeconds < 10) {
-                currentSeconds = `0${currentSeconds}`;
-            }
-            currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
-        }
+            // Format Time
+            formatTime(duration, durationEl);
+            formatTime(currentTime, currentTimeEl);
     }
 
     // Set Progress Bar
@@ -469,8 +482,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Event Listeners
-    // prevBtn.addEventListener('click', prevSong);
-    // nextBtn.addEventListener('click', nextSong);
     player.addEventListener("timeupdate", updateProgressBar);
     progressContainer.addEventListener("click", setProgressBar);
+    prevBtn.addEventListener('click', () => skipTime(-15));
+    nextBtn.addEventListener('click', () => skipTime(15));
 });
