@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isPlaying = false;
         playBtn.classList.replace("fa-pause", "fa-play");
         playBtn.setAttribute("title", "Play");
-        music.pause();
+        player.pause();
     }
 
     // Play or Pause Event Listener
@@ -418,18 +418,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update Podcast container
     function loadPodcast(episode) {
+        currentTimeEl.style.display = 'none';
+        durationEl.style.display = 'none';
         title.textContent = episode.title;
-        datePublished.textContent = `${
-            episode.datePublished
+        datePublished.textContent = `${episode.datePublished
                 ? formatDate(episode.datePublished)
                 : "Not Available"
         }`;
         player.src = episode.enclosureUrl;
         image.src = episode.image || episode.feedImage || "./default-podcast.png";
 
+        // Reset player
+        player.currentTime = 0;
+        progress.classList.add('loading');
+        currentTimeEl.textContent = '0:00';
+
         player.addEventListener("loadedmetadata", () => {
             const duration = player.duration;
+            currentTimeEl.style.display = 'block';
+            durationEl.style.display = 'block';
             formatTime(duration, durationEl);
+            progress.classList.remove('loading');
             playPodcast();
         });
     }
@@ -445,13 +454,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (seconds < 10) seconds = `0${seconds}`;
 
         // Format Minutes
-        const formattedMinutes =
-            hours > 0 && minutes < 10 ? `0${minutes}` : minutes;
+        const formattedMinutes = hours > 0 && minutes < 10 ? `0${minutes}` : minutes;
 
         // Display time in hours:minutes:seconds or minutes:seconds
         if (time) {
-            elName.textContent =
-                hours > 0
+            elName.textContent = hours > 0
                     ? `${hours}:${formattedMinutes}:${seconds}`
                     : `${minutes}:${seconds}`;
         }
@@ -486,4 +493,44 @@ document.addEventListener("DOMContentLoaded", () => {
     progressContainer.addEventListener("click", setProgressBar);
     prevBtn.addEventListener('click', () => skipTime(-15));
     nextBtn.addEventListener('click', () => skipTime(15));
+
+    // Check if screen width is less than 1025px
+    function isMobileDevice() {
+        return window.innerWidth < 1025;
+    }
+
+    // Save the player state to local storage every 5 seconds
+    setInterval(() => {
+        if (isPlaying) {
+            const playerState = {
+                title: title.textContent,
+                datePublished: datePublished.textContent,
+                currentTime: player.currentTime,
+                duration: player.duration,
+                image: image.src,
+                src: player.src
+            };
+            localStorage.setItem('playerState', JSON.stringify(playerState));
+        }
+    }, 5000);
+
+    // Load saved player state from local storage
+    function loadPlayerState() {
+        const savedState = JSON.parse(localStorage.getItem('playerState'));
+        if (savedState) {
+            title.textContent = savedState.title;
+            datePublished.textContent = savedState.datePublished;
+            player.src = savedState.src;
+            image.src = savedState.image;
+            player.currentTime = savedState.currentTime;
+            formatTime(savedState.currentTime, currentTimeEl);
+            player.duration = savedState.duration;
+            formatTime(savedState.duration, durationEl);
+            progress.style.width = `${(savedState.currentTime / savedState.duration) * 100}%`;
+            if (isMobileDevice()) navigateToPlayer();
+        }
+    }
+
+    // On Startup 
+    loadPlayerState();
 });
