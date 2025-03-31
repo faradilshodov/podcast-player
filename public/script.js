@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetButton = document.getElementById("resetButton");
     const loader = document.getElementById("loader");
     const responseContainer = document.getElementById("response");
+    const queueContainer = document.querySelector(".queue");
 
     // Reset search history
     function resetHistory() {
@@ -323,6 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
         queueBtnIcon.title = "Add to Queue";
         queueBtnIcon.addEventListener("click", () => {
             console.log("Episode queued: ", episode);
+            addToQueue(episode);
         });
 
         const description = document.createElement("p");
@@ -350,13 +352,57 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
+    // Add item to queue
+    function addToQueue(episode) {
+        const card = document.createElement("div");
+        card.className = "queue-item";
+
+        const img = document.createElement("img");
+        img.src = episode.image || episode.feedImage || "./default-podcast.png";
+        img.alt = episode.title;
+
+        const content = document.createElement("div");
+        content.className = "queue-content";
+
+        const title = document.createElement("h3");
+        title.innerText = episode.title;
+
+        const iconContainer = document.createElement("div");
+        iconContainer.className = "icon-container";
+
+        const playBtnIcon = document.createElement("i");
+        playBtnIcon.className = "fas fa-play-circle mb-10";
+        playBtnIcon.title = "Play Podcast";
+        playBtnIcon.addEventListener("click", () => {
+            console.log("Episode played: ", episode);
+            loadPodcast(episode);
+        });
+
+        const removeBtnIcon = document.createElement("i");
+        removeBtnIcon.className = "fas fa-trash-alt";
+        removeBtnIcon.title = "Remove from Queue";
+        removeBtnIcon.addEventListener("click", () => {
+            console.log("Episode removed: ", episode);
+        });
+
+        iconContainer.appendChild(playBtnIcon);
+        iconContainer.appendChild(removeBtnIcon);
+
+        content.appendChild(title);
+        content.appendChild(iconContainer);
+
+        card.appendChild(img);
+        card.appendChild(content);
+
+        queueContainer.appendChild(card);
+    }
+
     // Navigation  ---------------------------------------------------------------------------------- //
     const searchLink = document.getElementById("searchLink");
     const listenLink = document.getElementById("listenLink");
     const searchContainer = document.querySelector(".search-container");
     const mainContainer = document.querySelector(".main-container");
     const playerContainer = document.querySelector(".player-container");
-    const queueContainer = document.querySelector(".queue");
 
     searchLink.addEventListener("click", navigateToSearch);
     listenLink.addEventListener("click", navigateToPlayer);
@@ -418,27 +464,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update Podcast container
     function loadPodcast(episode) {
-        currentTimeEl.style.display = 'none';
-        durationEl.style.display = 'none';
+        currentTimeEl.style.display = "none";
+        durationEl.style.display = "none";
         title.textContent = episode.title;
-        datePublished.textContent = `${episode.datePublished
+        datePublished.textContent = `${
+            episode.datePublished
                 ? formatDate(episode.datePublished)
                 : "Not Available"
         }`;
         player.src = episode.enclosureUrl;
-        image.src = episode.image || episode.feedImage || "./default-podcast.png";
+        image.src =
+            episode.image || episode.feedImage || "./default-podcast.png";
 
         // Reset player
         player.currentTime = 0;
-        progress.classList.add('loading');
-        currentTimeEl.textContent = '0:00';
+        progress.classList.add("loading");
+        currentTimeEl.textContent = "0:00";
 
         player.addEventListener("loadedmetadata", () => {
             const duration = player.duration;
-            currentTimeEl.style.display = 'block';
-            durationEl.style.display = 'block';
+            currentTimeEl.style.display = "block";
+            durationEl.style.display = "block";
             formatTime(duration, durationEl);
-            progress.classList.remove('loading');
+            progress.classList.remove("loading");
             playPodcast();
         });
     }
@@ -454,11 +502,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (seconds < 10) seconds = `0${seconds}`;
 
         // Format Minutes
-        const formattedMinutes = hours > 0 && minutes < 10 ? `0${minutes}` : minutes;
+        const formattedMinutes =
+            hours > 0 && minutes < 10 ? `0${minutes}` : minutes;
 
         // Display time in hours:minutes:seconds or minutes:seconds
         if (time) {
-            elName.textContent = hours > 0
+            elName.textContent =
+                hours > 0
                     ? `${hours}:${formattedMinutes}:${seconds}`
                     : `${minutes}:${seconds}`;
         }
@@ -466,18 +516,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Skip forward or backward 15 secs
     function skipTime(amount) {
-        player.currentTime = Math.max(0, Math.min(player.duration, player.currentTime + amount));
+        player.currentTime = Math.max(
+            0,
+            Math.min(player.duration, player.currentTime + amount)
+        );
     }
 
     // Update Progress Bar & Time
     function updateProgressBar(e) {
-            const { duration, currentTime } = e.srcElement;
-            // Update progress bar width
-            const progressPercent = (currentTime / duration) * 100;
-            progress.style.width = `${progressPercent}%`;
-            // Format Time
-            formatTime(duration, durationEl);
-            formatTime(currentTime, currentTimeEl);
+        const { duration, currentTime } = e.srcElement;
+        // Update progress bar width
+        const progressPercent = (currentTime / duration) * 100;
+        progress.style.width = `${progressPercent}%`;
+        // Format Time
+        formatTime(duration, durationEl);
+        formatTime(currentTime, currentTimeEl);
     }
 
     // Set Progress Bar
@@ -491,8 +544,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Event Listeners
     player.addEventListener("timeupdate", updateProgressBar);
     progressContainer.addEventListener("click", setProgressBar);
-    prevBtn.addEventListener('click', () => skipTime(-15));
-    nextBtn.addEventListener('click', () => skipTime(15));
+    prevBtn.addEventListener("click", () => skipTime(-15));
+    nextBtn.addEventListener("click", () => skipTime(15));
 
     // Check if screen width is less than 1025px
     function isMobileDevice() {
@@ -508,15 +561,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentTime: player.currentTime,
                 duration: player.duration,
                 image: image.src,
-                src: player.src
+                src: player.src,
             };
-            localStorage.setItem('playerState', JSON.stringify(playerState));
+            localStorage.setItem("playerState", JSON.stringify(playerState));
         }
     }, 5000);
 
     // Load saved player state from local storage
     function loadPlayerState() {
-        const savedState = JSON.parse(localStorage.getItem('playerState'));
+        const savedState = JSON.parse(localStorage.getItem("playerState"));
         if (savedState) {
             title.textContent = savedState.title;
             datePublished.textContent = savedState.datePublished;
@@ -526,11 +579,13 @@ document.addEventListener("DOMContentLoaded", () => {
             formatTime(savedState.currentTime, currentTimeEl);
             player.duration = savedState.duration;
             formatTime(savedState.duration, durationEl);
-            progress.style.width = `${(savedState.currentTime / savedState.duration) * 100}%`;
+            progress.style.width = `${
+                (savedState.currentTime / savedState.duration) * 100
+            }%`;
             if (isMobileDevice()) navigateToPlayer();
         }
     }
 
-    // On Startup 
+    // On Startup
     loadPlayerState();
 });
