@@ -165,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
     async function searchPodcast() {
         const searchTerm = searchInput.value.trim();
         if (searchTerm) {
-            console.log("Searched: ", searchTerm);
             saveSearchHistory(searchTerm);
             loadSearchHistory();
         } else {
@@ -315,7 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
         playBtnIcon.className = "fas fa-play-circle mr-10";
         playBtnIcon.title = "Play Podcast";
         playBtnIcon.addEventListener("click", () => {
-            console.log("Episode played: ", episode);
             loadPodcast(episode);
         });
 
@@ -323,7 +321,6 @@ document.addEventListener("DOMContentLoaded", () => {
         queueBtnIcon.className = "fas fa-list";
         queueBtnIcon.title = "Add to Queue";
         queueBtnIcon.addEventListener("click", () => {
-            console.log("Episode queued: ", episode);
             addToQueue(episode);
         });
 
@@ -352,6 +349,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
+    // Set Queue Array
+    let queueItems = [];
+
     // Add item to queue
     function addToQueue(episode) {
         const card = document.createElement("div");
@@ -374,7 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
         playBtnIcon.className = "fas fa-play-circle mb-10";
         playBtnIcon.title = "Play Podcast";
         playBtnIcon.addEventListener("click", () => {
-            console.log("Episode played: ", episode);
             loadPodcast(episode);
         });
 
@@ -382,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
         removeBtnIcon.className = "fas fa-trash-alt";
         removeBtnIcon.title = "Remove from Queue";
         removeBtnIcon.addEventListener("click", () => {
-            console.log("Episode removed: ", episode);
+            deleteFromQueue(episode);
         });
 
         iconContainer.appendChild(playBtnIcon);
@@ -395,6 +394,33 @@ document.addEventListener("DOMContentLoaded", () => {
         card.appendChild(content);
 
         queueContainer.appendChild(card);
+        saveQueue(episode);
+    }
+
+    // Delete Item from queue
+    function deleteFromQueue(episode) {
+        queueItems = queueItems.filter((item) => item.title !== episode.title);
+        localStorage.setItem("queue", JSON.stringify(queueItems));
+
+        const queueElements = document.querySelectorAll(".queue-item");
+        queueElements.forEach((item) => {
+            const title = item.querySelector("h3").innerText;
+            if (title === episode.title) item.remove();
+        });
+    }
+
+    // Save items to queue
+    function saveQueue(episode) {
+        queueItems.push(episode);
+        localStorage.setItem("queue", JSON.stringify(queueItems));
+    }
+
+    // Load saved queue
+    function loadQueue(params) {
+        const savedQueue = JSON.parse(localStorage.getItem("queue"));
+        if (savedQueue) {
+            savedQueue.forEach((episode) => addToQueue(episode));
+        }
     }
 
     // Navigation  ---------------------------------------------------------------------------------- //
@@ -588,4 +614,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // On Startup
     loadPlayerState();
+    loadQueue();
 });
