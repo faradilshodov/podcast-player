@@ -407,6 +407,10 @@ button:hover {
     margin-bottom: 10px;
 }
 
+.queue-item:last-child {
+    margin-bottom: 0;
+}
+
 .queue-item img {
     height: 100px;
     width: 100px;
